@@ -8,11 +8,15 @@ import random
 import math
 import subprocess
 import re
+import sys
 
 COLORS = {' ':0x000000,'.':0xffffff,'0':0xffffff,'1':0xffffff,'2':0xff0000,'3':0x00ff00,'4':0x0000ff,'5':0xffff00,'6':0xff00ff,'7':0x00ffff,'8':0x00ffff,'9':0xff8000}
 
 class Pattern(object):
     def init(self):
+        if not sys.platform.startswith('linux'):
+            print('Not running on Linux; not running IP pattern')
+            raise StopIteration
         ips = subprocess.check_output(['/sbin/ip','addr'])
         regex = re.compile('inet [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
         self.message = ' '
