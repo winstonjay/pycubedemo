@@ -2,7 +2,9 @@
 
 ## What is this?
 
-This repository contains demo patterns for a 3D cube written in Python 3. It supports both an internal OpenGL renderer, and driving an external LED cube, either over a serial connection or a network.
+This repository contains demo patterns for a 3D cube written in Python. It supports both an internal OpenGL renderer, and driving an external LED cube, either over a serial connection or a network.
+
+The code should run fine under both Python 2.7 and Python 3.
 
 ## Dependencies / Setup
 
@@ -10,23 +12,17 @@ The Python package `numpy` is required, and if you want to use the OpenGL render
 
 ### Debian-like (inc. Ubuntu) Linux
 
-`sudo apt-get install python3-numpy python3-pygame python3-opengl`
+`sudo apt-get install python-numpy python-pygame python-opengl`
 
 ### Mac OS X / Other
 
-`pip3 install -r requirements.txt`
-
-(use `pip` if `pip3` is not installed)
-
-Haven't got Python 3 installed? Install [Homebrew](https://brew.sh/), then `brew install python3`.
+`pip install -r requirements.txt`
 
 ## Running
 
-All of these commands should be run with `python3`, unless Python 3 is available by running `python`.
-
 ### Demo patterns
 
-`python3 cube.py`
+`python cube.py`
 
 Run the cube demo patterns using the default OpenGL renderer. It will cycle through all patterns in a random order.
 
