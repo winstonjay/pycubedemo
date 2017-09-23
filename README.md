@@ -1,0 +1,19 @@
+# 3D cube demo patterns
+
+Supports both an internal OpenGL renderer, and driving an external LED cube.
+
+Requires numpy (`python-numpy` package on Debian-like systems).
+
+The OpenGL renderer requires pygame (`python-pygame`) and pyOpenGL (`python-opengl`).
+
+The default target is the the OpenGL renderer, and will cycle through all patterns in a random order. You can connect to to an external cube/simulator with `--port hostname:portnum`.
+
+A particular [set of] pattern(s) can be selected with the `--pattern` command-line option.
+
+New patterns can be added by by placing a new Python file in the `patterns/` directory, which implements the `Pattern` class. The `init` function is called when the pattern is started. It should return the delay between frames. For every frame the `tick` function is called.
+
+The image is set using `self.cube.clear` and `self.cube.set_pixel`. To avoid flickering, double buffering can be enabled with `self.double_buffer = True`.
+
+The easiest way to get started is to copy and modify and existing pattern. `fade` and `wave` are probably good starting points.
+
+Installing pygame on a Mac is apparently much harder than it should be. Mac users may be interested in the node/webgl cube emulator at https://github.com/ultrafez/ledcube-webgl
