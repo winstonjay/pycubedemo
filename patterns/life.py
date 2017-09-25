@@ -2,9 +2,27 @@
 Author:   Karl Sims. 2017.
 Goal:     Implement 3D version of Conway's Game of Life for LED cubes.
 
-python cube.py -P cuboid:3000 --pattern life
 
-Version 3
+Alternative rules for 'Life' in 3 dimensions used here are as follows:
+
+    1) Any live cell with fewer than 3 live neighbors dies, 
+       as if caused by underpopulation.
+
+    2) Any live cell with more than 5 live neighbors dies, 
+       as if by overcrowding.
+
+    3) Any live cell with 3, 4, 5 live neighbors lives on 
+       to the next generation.
+
+    4) Any live cell with exactly 5 live neighbors develops a
+        mutation causing it to change color.
+
+    5) Any dead cell with exactly 5 live neighbors becomes 
+       a live cell. 
+
+
+Infomation on classic version of 'Life': https://goo.gl/CR7fbR
+pdf Essay on 'Life' in 3 dimensions: https://goo.gl/j6BGaA
 """
 import random
 
@@ -74,31 +92,11 @@ class CubeLife(object):
         return self.count == self.limit
 
 
+# Generating new Generations for life:
+# Code adapted slightly implimentation in 2d. Main differences include:
+# constrained state space, returns ((x, y, z), bool: mutation)
 
-"""
-Life implementation in 3d.
-
-Fundamental 'Life' Rules in square land:
-1) Any live cell with fewer than two live neighbors dies, 
-   as if caused by underpopulation.
-2) Any live cell with more than three live neighbors dies, 
-   as if by overcrowding.
-3) Any live cell with two or three live neighbors lives on 
-   to the next generation.
-4) Any dead cell with exactly three live neighbors becomes 
-   a live cell.
-
-More info: http://web.stanford.edu/~cdebs/GameOfLife/
-
-Another's ideas about creating versions in cube land:
-http://www.complex-systems.com/pdf/01-3-1
-Current neighbour rules are tentative. Tweaking the inital state function
-may also be helpful in ensuring a got life / failed-life ratio.
-
-TODO: choose for good neighbour rules.
-"""
-
-def next_generation_3d(state, size=None):
+def next_generation_3d(state, size):
     """nextGeneration(set: state, size=None): set: {(ints: x, y, z), ...};
     Following the game rules return a successive state from any given state 
     on an infinite or finite plane. Adapted function version for 3d."""
@@ -107,13 +105,13 @@ def next_generation_3d(state, size=None):
         cell_neighbours = neighbours_3d(cell)
         if len(state & cell_neighbours) in (3, 4): # rule 3 / (1 & 2)
             new_state.add(cell)
-        elif len(state & cell_neighbours) is 5: # rule 6 they get sick
+        elif len(state & cell_neighbours) is 5: # rule 4 they get sick
             c, _ = cell
             new_state.add((c, True))
         for cn in cell_neighbours: # rule 4
             if len(state & neighbours_3d(cn)) is 5: 
                 new_state.add(cn)
-    return (new_state if not size else constrain(new_state, size))
+    return constrain(new_state, size)
 
 
 def neighbours_3d(cell):
@@ -136,8 +134,6 @@ def constrain(S, s):
 
 # Random Utilies / Initial State funcitons:
 
-__rand = random.randint
-
 def random_blast(size):
     "concentrated center scattered rest."
     edge = int(size/2.2)
@@ -151,12 +147,12 @@ def random_blast(size):
                   for x in range(__rand(size, size*3)))
     return (bundle | scatter)
 
+__rand = random.randint
+
 
 # Color Utilies:
 
-def new_colors():
-    "return 2 random rgb colors from material design colors"
-    return random.choice(material_colors)
+new_colors = lambda: random.choice(material_colors)
 
 material_colors = [
     ((96,125,139), (213,0,0)),
