@@ -7,19 +7,14 @@ Alternative rules for 'Life' in 3 dimensions used here are as follows:
 
     1) Any live cell with fewer than 3 live neighbors dies, 
        as if caused by underpopulation.
-
     2) Any live cell with more than 5 live neighbors dies, 
        as if by overcrowding.
-
     3) Any live cell with 3, 4, 5 live neighbors lives on 
        to the next generation.
-
     4) Any live cell with exactly 5 live neighbors develops a
         mutation causing it to change color.
-
     5) Any dead cell with exactly 5 live neighbors becomes 
        a live cell. 
-
 
 Infomation on classic version of 'Life': https://goo.gl/CR7fbR
 pdf Essay on 'Life' in 3 dimensions: https://goo.gl/j6BGaA
@@ -30,37 +25,37 @@ import random
 class Pattern(object):
 
     def init(self):
-        self.double_buffer = True # dosent clear propperly.
+        self.double_buffer = True # Need this for irl cube.
         self.life = CubeLife(size=self.cube.size, 
-                             limit=100, 
+                             limit=150, 
                              new_state=random_blast,
                              next_generation=next_generation_3d)
-        return 1.0/8 # time between ticks.
+        return 1.0/8 # time between ticks. 8 fps ?
 
     def tick(self):
-        self.cube.clear()
+        self.cube.clear() # Make sure cubes are cleared or problems in simulator.
         for (x, y, z), color in self.life.successors():
             self.cube.set_pixel((x, y, z), color)
 
 
 
-
 class CubeLife(object):
-    "Implements interface for generating successor states in conways game of life."
-    
-    def __init__(self, size, limit, new_state, next_generation, limited=False):
+
+    def __init__(self, size, limit, new_state, next_generation):
         self.size = size
         self.limit = limit
-        # Add generation functions.
         self.new_state = new_state
         self.next_gen = next_generation
-        # set initial values.
-        self.__restart()
+        self.count = 0
+        self.patterns = []
+        self.state = set()
+        self.color1, self.color2 = new_colors()
+        # Initalise life generator. Round 1 will be blank for 6 iterations.
+        self.generations = self.__life()
 
     def successors(self):
-        for position, mutation in next(self.__life()):
-            yield ((position, self.color2) if mutation else
-                   (position, self.color1))
+        for pos, mute in next(self.generations):
+            yield ((pos, self.color2) if mute else (pos, self.color1))
 
     def __life(self):
         "yield whole generations of life forever."
@@ -77,29 +72,28 @@ class CubeLife(object):
         "Set initial values for each new game of life"
         self.count = 0
         self.patterns = []
-        self.state = set()
         self.color1, self.color2 = new_colors()
-        # Set the inital state from which to spawn Life.
         self.state = self.new_state(self.size)
 
     def __done(self):
+        """Return whether or not the current game of life should end. 
+        We don't want infinite loops, solid states, or state with 0
+        population. Catching all infinite loops poses a prediction problem
+        so just set an iteration limit."""
         if len(self.patterns) >= 6:
             self.patterns.pop(0)
-            # We dont want to be stuck on short repeating patterns forever.
-            # This catches some cases, including solid states but not all.
-            if self.patterns[-3] == self.state:
-                return True
-        return self.count == self.limit
+            return (self.count >= self.limit or 
+                    self.patterns[-3] == self.state)
+        return False
 
 
 # Generating new Generations for life:
-# Code adapted slightly implimentation in 2d. Main differences include:
-# constrained state space, returns ((x, y, z), bool: mutation)
 
 def next_generation_3d(state, size):
-    """nextGeneration(set: state, size=None): set: {(ints: x, y, z), ...};
-    Following the game rules return a successive state from any given state 
-    on an infinite or finite plane. Adapted function version for 3d."""
+    """nextGeneration(set: state, int: size): {((ints: x, y, z), bool)...};
+    Following the game rules return a successive state in life from any given 
+    state on a finite plane. Adapted function version for 3d with extra 
+    mutation attributes."""
     new_state = set()
     for cell in state:
         cell_neighbours = neighbours_3d(cell)
@@ -115,8 +109,8 @@ def next_generation_3d(state, size):
 
 
 def neighbours_3d(cell):
-    """neighbours(tuple: cell): set: {(ints: x, y, z), ...};
-    returns a set of co-ordinates +/- 1 from a given position."""
+    """neighbours(tuple: cell): set: {(ints: x, y, z), ...}; returns a set of 
+    co-ordinates +/- 1 from a given position."""
     (x, y, z), mute = cell
     return set(((x + dx, y + dy, z + dz), mute) for dx, dy, dz in deltas_3d)
 
@@ -132,10 +126,12 @@ def constrain(S, s):
                if 0 <= x < s and 0 <= y < s and 0 <= z < s)
 
 
-# Random Utilies / Initial State funcitons:
+# Generating inital states:
 
 def random_blast(size):
-    "concentrated center scattered rest."
+    """For generating intial states in game of life. return a random state 
+    with a concentrated bundle of likely points in the center of the cube 
+    and a scattering around the the rest of the state space."""
     edge = int(size/2.2)
     bundle = set(((__rand(edge, size - edge-1), 
                    __rand(edge, size - edge-1),
