@@ -18,6 +18,9 @@ Alternative rules for 'Life' in 3 dimensions used here are as follows:
 
 Infomation on classic version of 'Life': https://goo.gl/CR7fbR
 pdf Essay on 'Life' in 3 dimensions: https://goo.gl/j6BGaA
+
+to run: 
+python cube.py -P cuboid:3000  --pattern life
 """
 import random
 
@@ -148,19 +151,30 @@ __rand = random.randint
 
 # Color Utilies:
 
-new_colors = lambda: random.choice(material_colors)
+def new_colors(): return random.choice(material_colors)
 
 material_colors = [
-    ((96,125,139), (213,0,0)),
-    ((48,79,254), (213,0,0)),
-    ((213,0,0), (48,79,254)),
-    ((170,0,255), (0,145,234)),
+    # colors are vary across different simulations.
+
+    ((213,0,0), (48,79,254)), # red, blue.
+    ((48,79,254), (213,0,0)), # blue, red.
+    ((245, 0, 87), (66, 165, 245)), # pink/puple, blue.
+    
+    ((170,0,255), (0,145,234)), # puple, blue.
     ((0,145,234), (170,0,255)),
     ((46,125,50), (255,143,0)),
+    ((200, 83, 1), (98, 0, 234)), # comes out yellow, purple.
+
+    ((100, 221, 23), (170,0,255)), # green, purple.
+
+    ((38, 198, 218), (249, 168, 37)), # blue orangey yellow.
+
     ((96,125,139), (139,195,74)),  # lime and blue grey
-    ((139,195,74), (96,125,139)),  # lime and blue grey
     ((98,0,234), (0,121,107)),     # deep purple teal
     ((0,191,165), (98,0,234)),     # dark teal deep purple
 ]
+
+
+
 
 
