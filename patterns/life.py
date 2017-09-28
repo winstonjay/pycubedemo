@@ -1,7 +1,7 @@
 """
 Author:   Karl Sims. 2017.
-Goal:     Implement 3D version of Conway's Game of Life for LED cubes.
-
+Aim:      Implement 3D version of Conway's Game of Life for LED cubes. 
+          Make colors more interesting also.
 
 Alternative rules for 'Life' in 3 dimensions used here are as follows:
 
@@ -12,21 +12,23 @@ Alternative rules for 'Life' in 3 dimensions used here are as follows:
     3) Any live cell with 3, 4, 5 live neighbors lives on 
        to the next generation.
     4) Any live cell with exactly 5 live neighbors develops a
-        mutation causing it to change color.
+        mutation causing it to change color. This is carried by 
+        all its direct descendents.
     5) Any dead cell with exactly 5 live neighbors becomes 
        a live cell. 
 
 Infomation on classic version of 'Life': https://goo.gl/CR7fbR
 pdf Essay on 'Life' in 3 dimensions: https://goo.gl/j6BGaA
 
-to run: 
-python cube.py -P cuboid:3000  --pattern life
+To run individually:
+Local simulation:       python cube.py --pattern life
+Mini cube over network: python cube.py -P cuboid:3000 --pattern life
 """
 import random
 
 
 class Pattern(object):
-
+    
     def init(self):
         self.double_buffer = True # Need this for irl cube.
         self.life = CubeLife(size=self.cube.size, 
@@ -43,7 +45,9 @@ class Pattern(object):
 
 
 class CubeLife(object):
-
+    """CubeLife(): class object instances will iniailise a generator function for
+    infinite generations of life. Only external method 'successors' is used as a 
+    iterator and will run through each game and generation sequentially."""
     def __init__(self, size, limit, new_state, next_generation):
         self.size = size
         self.limit = limit
@@ -57,11 +61,14 @@ class CubeLife(object):
         self.generations = self.__life()
 
     def successors(self):
+        """Iterator: Returning data structure is for each iteration is a 
+        tuple of 2 tuples of 3 ints: ((x, y, z), (r, g, b)) these are constained 
+        to the cube size or rgb value limits."""
         for pos, mute in next(self.generations):
             yield ((pos, self.color2) if mute else (pos, self.color1))
 
     def __life(self):
-        "yield whole generations of life forever."
+        "Iterator: yield whole generations of life forever."
         while True:
             if self.__done():
                 self.__restart()
@@ -94,9 +101,9 @@ class CubeLife(object):
 
 def next_generation_3d(state, size):
     """nextGeneration(set: state, int: size): {((ints: x, y, z), bool)...};
-    Following the game rules return a successive state in life from any given 
-    state on a finite plane. Adapted function version for 3d with extra 
-    mutation attributes."""
+    Following the game rules at the top of this file page. return a successive 
+    state in life from any given state on a finite plane. Adapted original function
+    for 3d with extra mutation attributes."""
     new_state = set()
     for cell in state:
         cell_neighbours = neighbours_3d(cell)
@@ -154,7 +161,7 @@ __rand = random.randint
 def new_colors(): return random.choice(material_colors)
 
 material_colors = [
-    # colors are vary across different simulations.
+    # colors vary across different simulations.
 
     ((213,0,0), (48,79,254)), # red, blue.
     ((48,79,254), (213,0,0)), # blue, red.
